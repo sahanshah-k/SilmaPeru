@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
+import android.os.Build;
+import android.text.Layout;
+import android.text.SpannableString;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -11,12 +14,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.github.chrisbanes.photoview.PhotoViewAttacher;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -29,18 +34,12 @@ import com.google.firebase.storage.StorageReference;
 import com.infinity.silmaperu.R;
 import com.infinity.silmaperu.config.GlideApp;
 import com.infinity.silmaperu.utilities.ImageUtils;
+import com.infinity.silmaperu.utilities.MyLeadingMarginSpan2;
 import com.infinity.silmaperu.utilities.StringUtilsCustom;
 
-import org.json.simple.parser.JSONParser;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 import static android.content.ContentValues.TAG;
 
@@ -49,7 +48,9 @@ public class FirestoreService {
     ImageView movieImage;
     String guessedName = "";
     MediaPlayer mp;
-    PhotoViewAttacher zoomAttacher;
+    String status = "";
+    FlexboxLayout flexboxLayoutClue;
+    String wikiContentString = "";
     private FirebaseFirestore db;
     private View rootView;
     private Context context;
@@ -92,6 +93,8 @@ public class FirestoreService {
                     String movieName = (String) currentMovie.get("movieName");
                     String clueMovieName = (String) currentMovie.get("shuffledName");
                     mappingMap = (Map<String, String>) currentMovie.get("mappingMap");
+                    status = (String) currentMovie.get("status");
+                    wikiContentString = (String) currentMovie.get("wikiContent");
 
                     if (mappingMap == null) {
                         mappingMap = new HashMap<>();
@@ -151,7 +154,7 @@ public class FirestoreService {
                             @Override
                             public void onClick(View view) {
                                 String buttonIdString = String.valueOf(button.getId());
-                                if (mappingMap.get(buttonIdString) != null) {
+                                if (mappingMap.get(buttonIdString) != null && (null == status || !status.equals("done"))) {
 
                                     Button clueButton = rootView.findViewById(Integer.parseInt(mappingMap.get(buttonIdString)));
                                     clueButton.setVisibility(View.VISIBLE);
@@ -196,7 +199,7 @@ public class FirestoreService {
                         button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 23);
                         button.setTypeface(Typeface.createFromAsset(context.getAssets(), "guess_font_primetime.ttf"));
                         button.setGravity(Gravity.CENTER);
-                        FlexboxLayout flexboxLayout = rootView.findViewById(R.id.name_scrambled_layout);
+                        flexboxLayoutClue = rootView.findViewById(R.id.name_scrambled_layout);
 
                         button.setText(charClue);
                         final int finalI = i;
@@ -206,11 +209,35 @@ public class FirestoreService {
                                 buttonAction(button);
                             }
                         });
-                        flexboxLayout.addView(button);
+                        if (null == status || !status.equals("done")) {
+                            flexboxLayoutClue.addView(button);
 
+                        }
                         if (clueHidden.contains(i + 2000)) {
                             button.setVisibility(View.INVISIBLE);
                         }
+                    }
+
+                    if (null != status && status.equals("done")) {
+
+                        SpannableString ss;
+
+                        if (wikiContentString.length() > 465) {
+                            ss = new SpannableString(wikiContentString.substring(0, 464) + "...");
+
+                        } else {
+                            ss = new SpannableString(wikiContentString);
+                        }
+                        ss.setSpan(new MyLeadingMarginSpan2(3, 160), 0, ss.length(), 0);
+
+                        TextView wikiContentTextView = rootView.findViewById(R.id.wikiContent);
+                        RelativeLayout wikiRelativeLayout = rootView.findViewById(R.id.wikiLayout);
+                        wikiRelativeLayout.setVisibility(View.VISIBLE);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            wikiContentTextView.setJustificationMode(Layout.JUSTIFICATION_MODE_INTER_WORD);
+                        }
+
+                        wikiContentTextView.setText(ss);
                     }
 
                     for (int i = 0; i < movieName.length(); i++) {
@@ -276,8 +303,27 @@ public class FirestoreService {
                 MediaPlayer successSound = MediaPlayer.create(context, R.raw.success);
                 Toast.makeText(context, "Awesome", Toast.LENGTH_LONG).show();
                 currentMovie.put("status", "done");
+                flexboxLayoutClue.setVisibility(View.INVISIBLE);
+                SpannableString ss;
+
+                if (wikiContentString.length() > 465) {
+                    ss = new SpannableString(wikiContentString.substring(0, 464) + "...");
+
+                } else {
+                    ss = new SpannableString(wikiContentString);
+                }
+                ss.setSpan(new MyLeadingMarginSpan2(3, 160), 0, ss.length(), 0);
+
+                TextView wikiContentTextView = rootView.findViewById(R.id.wikiContent);
+                RelativeLayout wikiRelativeLayout = rootView.findViewById(R.id.wikiLayout);
+                wikiRelativeLayout.setVisibility(View.VISIBLE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    wikiContentTextView.setJustificationMode(Layout.JUSTIFICATION_MODE_INTER_WORD);
+                }
+
+                wikiContentTextView.setText(ss);
                 successSound.start();
-               
+
             } else if (pureGuessedName.length() == pureMovieName.length()) {
                 MediaPlayer wrongSound = MediaPlayer.create(context, R.raw.wrong);
                 Toast.makeText(context, "Wrong Answer!", Toast.LENGTH_LONG).show();
@@ -286,34 +332,5 @@ public class FirestoreService {
 
         }
     }
-
-    public void wikiCall(String title) throws IOException {
-        title = "Kali (2016 film)";
-        String urlString = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=" + title;
-        URL url = new URL(urlString);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-        conn.connect();
-        int responsecode = conn.getResponseCode();
-
-        if (responsecode != 200)
-            throw new RuntimeException("HttpResponseCode:" + responsecode);
-        else {
-            String inline = "";
-            Scanner sc = new Scanner(url.openStream());
-            while(sc.hasNext())
-            {
-                inline+=sc.nextLine();
-            }
-            System.out.println(inline);
-            sc.close();
-            JSONParser parse = new JSONParser();
-            Toast.makeText(context, inline, Toast.LENGTH_LONG).show();
-
-        }
-
-
-    }
-
 
 }

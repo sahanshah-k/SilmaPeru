@@ -6,4 +6,5 @@
     <color name="colorWhite">#ffff</color>
     <color name="colorWhiteFade">#BEBEBE</color>
     <color name="colorBlack">#000000</color>
+    <color name="colorLightBlack">#A5A5A5</color>
 </resources>

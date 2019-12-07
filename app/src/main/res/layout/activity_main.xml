@@ -2,11 +2,12 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainactivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_final"
-    android:id="@+id/mainactivity"
     tools:context=".MainActivity">
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_display_users"
         android:layout_width="match_parent"
@@ -20,7 +21,7 @@
             android:id="@+id/mainactivity_back"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:src="@drawable/ic_arrow_back_black_24dp"/>
+            android:src="@drawable/ic_arrow_back_black_24dp" />
 
         <TextView
             android:id="@+id/display_name_display_users"
@@ -88,4 +89,37 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar_display_users" />
+
+    <RelativeLayout
+        android:id="@+id/wikiLayout"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/answer_layout"
+        app:layout_constraintVertical_bias="0.0">
+
+        <ImageView
+            android:layout_width="130px"
+            android:layout_height="130px"
+            android:layout_marginTop="5dp"
+            android:id="@+id/wiki_image_image_view"
+            android:src="@drawable/wiki_image"/>
+
+        <TextView
+            android:id="@+id/wikiContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorLightBlack"
+            android:textSize="17dp"
+            />
+
+
+    </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
