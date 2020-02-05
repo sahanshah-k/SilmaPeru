@@ -9,7 +9,6 @@ import androidx.appcompat.widget.AppCompatImageView;
 
 import com.infinity.silmaperu.services.FirestoreService;
 
-import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 

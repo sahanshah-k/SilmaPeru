@@ -19,7 +19,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.flexbox.FlexboxLayout;
@@ -33,6 +32,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.infinity.silmaperu.R;
 import com.infinity.silmaperu.config.GlideApp;
+import com.infinity.silmaperu.utilities.Constants;
 import com.infinity.silmaperu.utilities.ImageUtils;
 import com.infinity.silmaperu.utilities.MyLeadingMarginSpan2;
 import com.infinity.silmaperu.utilities.StringUtilsCustom;
@@ -238,6 +238,16 @@ public class FirestoreService {
                         }
 
                         wikiContentTextView.setText(ss);
+
+                        RelativeLayout winMessageLayout = rootView.findViewById(R.id.winMessageLayout);
+                        winMessageLayout.setVisibility(View.VISIBLE);
+
+                        TextView winMessage = rootView.findViewById(R.id.winMessage);
+                        winMessage.setTypeface(Typeface.createFromAsset(context.getAssets(), "win_font.ttf"));
+                        winMessage.setText(Constants.getRandomWinMessage());
+                        winMessage.setTextColor(context.getResources().getColor(Constants.getRandomColor()));
+
+
                     }
 
                     for (int i = 0; i < movieName.length(); i++) {
@@ -322,6 +332,15 @@ public class FirestoreService {
                 }
 
                 wikiContentTextView.setText(ss);
+
+                RelativeLayout winMessageLayout = rootView.findViewById(R.id.winMessageLayout);
+                winMessageLayout.setVisibility(View.VISIBLE);
+
+                TextView winMessage = rootView.findViewById(R.id.winMessage);
+                winMessage.setText(Constants.getRandomWinMessage());
+                winMessage.setTypeface(Typeface.createFromAsset(context.getAssets(), "win_font.ttf"));
+
+                winMessage.setTextColor(Constants.getRandomColor());
                 successSound.start();
 
             } else if (pureGuessedName.length() == pureMovieName.length()) {

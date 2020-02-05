@@ -122,4 +122,31 @@
 
 
     </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/winMessageLayout"
+        android:layout_width="match_parent"
+android:visibility="gone"
+        android:layout_height="100dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/win_back"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wikiLayout"
+        app:layout_constraintVertical_bias="1.0">
+
+        <TextView
+            android:id="@+id/winMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="20dp"
+
+            android:text="WELL DONE!"
+            android:textSize="45dp"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

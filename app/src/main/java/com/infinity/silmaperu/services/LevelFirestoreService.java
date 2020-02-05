@@ -3,13 +3,8 @@ package com.infinity.silmaperu.services;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
-import android.media.Image;
+import android.os.Environment;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -19,8 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.flexbox.FlexboxLayout;
@@ -35,11 +28,13 @@ import com.google.firebase.storage.StorageReference;
 import com.infinity.silmaperu.MainActivity;
 import com.infinity.silmaperu.R;
 import com.infinity.silmaperu.config.GlideApp;
-import com.infinity.silmaperu.utilities.ImageTransformation;
 import com.infinity.silmaperu.utilities.ImageUtils;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.realm.Realm;
 
 public class LevelFirestoreService {
 
@@ -47,11 +42,13 @@ public class LevelFirestoreService {
     private View rootView;
     private Context context;
     private StorageReference mStorageRef;
+    Realm realm;
 
 
     public LevelFirestoreService(Context context) {
         this.context = context;
         db = FirebaseFirestore.getInstance();
+        realm = Realm.getDefaultInstance();
 
         rootView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
@@ -99,7 +96,7 @@ public class LevelFirestoreService {
 
                         GlideApp.with(context.getApplicationContext())
                                 .asBitmap()
-                                .load(mStorageRef)
+                                .load(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + File.separator + "SilmaPeru" + File.separator + "kali.jpg")
                                 .thumbnail()
                                 .into(new SimpleTarget<Bitmap>() {
                                     @Override
