@@ -23,10 +23,21 @@ public class MovieData extends RealmObject {
 
     private String wikiContent;
 
-    private RealmList<String> mappingMap;
+    private RealmList<MappingMap> mappingMap;
 
 
     public MovieData() {
+    }
+
+    public MovieData(String levelId, String movieId, String guessedName, String movieName, String shuffledName, String status, String wikiContent, RealmList<MappingMap> mappingMap) {
+        this.levelId = levelId;
+        this.movieId = movieId;
+        this.guessedName = guessedName;
+        this.movieName = movieName;
+        this.shuffledName = shuffledName;
+        this.status = status;
+        this.wikiContent = wikiContent;
+        this.mappingMap = mappingMap;
     }
 
     public String getLevelId() {
@@ -85,11 +96,11 @@ public class MovieData extends RealmObject {
         this.wikiContent = wikiContent;
     }
 
-    public RealmList<String> getMappingMap() {
+    public RealmList<MappingMap> getMappingMap() {
         return mappingMap;
     }
 
-    public void setMappingMap(RealmList<String> mappingMap) {
+    public void setMappingMap(RealmList<MappingMap> mappingMap) {
         this.mappingMap = mappingMap;
     }
 }

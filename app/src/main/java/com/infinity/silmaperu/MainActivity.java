@@ -20,13 +20,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        firestoreService.updateMap(level, movieId);
+        firestoreService.updateMap();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        firestoreService.updateMap(level, movieId);
+        firestoreService.updateMap();
     }
 
     @SuppressLint("ResourceType")

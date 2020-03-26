@@ -17,33 +17,25 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.flexbox.FlexboxLayout;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.infinity.silmaperu.MainActivity;
 import com.infinity.silmaperu.R;
 import com.infinity.silmaperu.config.GlideApp;
+import com.infinity.silmaperu.domain.MovieData;
 import com.infinity.silmaperu.utilities.ImageUtils;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import io.realm.Realm;
 
 public class LevelFirestoreService {
 
+    Realm realm;
     private FirebaseFirestore db;
     private View rootView;
     private Context context;
-    private StorageReference mStorageRef;
-    Realm realm;
-
 
     public LevelFirestoreService(Context context) {
         this.context = context;
@@ -58,66 +50,48 @@ public class LevelFirestoreService {
     }
 
     public void getLevelData(final String level) {
-        DocumentReference docRef = db.collection("user1").document(level);
         final FlexboxLayout flexboxLayout = rootView.findViewById(R.id.movie_tile);
         final Intent intent = new Intent(context, MainActivity.class);
+        final List<MovieData> movieDataList = realm.where(MovieData.class).equalTo("levelId", level).findAll();
+        flexboxLayout.removeAllViews();
+        for (final MovieData movieData : movieDataList) {
+            String movieName = movieData.getMovieName();
+            String imageName = movieName.toLowerCase().replace(" ", "_") + ".jpg";
+            final String status = movieData.getStatus();
+            final ImageView movieTile = new ImageView(context);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(240, 240);
+            lp.setMargins(15, 15, 15, 15);
+            movieTile.setLayoutParams(lp);
 
-        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot document, @Nullable FirebaseFirestoreException e) {
-                if (document != null && document.exists()) {
-                    flexboxLayout.removeAllViews();
-                    for (final Map.Entry<String, Object> entry : document.getData().entrySet()) {
-                        HashMap<String, Object> entryValue = (HashMap<String, Object>) entry.getValue();
-                        String movieName = (String) entryValue.get("movieName");
-                        String imageUrl = "gs://movie-guess-c1b59.appspot.com/" + level + "/" + movieName.toLowerCase().replace(" ", "_") + ".jpg";
-                        final String status = (String) entryValue.get("status");
-                        mStorageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
-
-                        final ImageView movieTile = new ImageView(context);
-                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(240, 240);
-                        lp.setMargins(15, 15, 15, 15);
-                        movieTile.setLayoutParams(lp);
-
-                        movieTile.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                intent.putExtra("level", level);
-                                intent.putExtra("movieId", entry.getKey());
-                                context.startActivity(intent);
-                            }
-                        });
-
-                        /*GlideApp.with(context.getApplicationContext())
-                                .asBitmap()
-                                .load(mStorageRef)
-                                .thumbnail()
-                                .into(ImageUtils.getRoundedImageTarget(context, movieTile, (float) 25.00));*/
-
-                        GlideApp.with(context.getApplicationContext())
-                                .asBitmap()
-                                .load(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + File.separator + "SilmaPeru" + File.separator + "kali.jpg")
-                                .thumbnail()
-                                .into(new SimpleTarget<Bitmap>() {
-                                    @Override
-                                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                        if (status != null && status.equals("done")) {
-                                            resource = ImageUtils.applyOverlay(context, resource, R.drawable.done);
-                                        }
-                                        RoundedBitmapDrawable circularBitmapDrawable =
-                                                RoundedBitmapDrawableFactory.create(context.getResources(), resource);
-                                        circularBitmapDrawable.setCornerRadius((float) 50.00);
-
-                                        movieTile.setImageDrawable(circularBitmapDrawable);
-                                    }
-                                });
-
-                        flexboxLayout.addView(movieTile);
-
-                    }
-
+            movieTile.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    intent.putExtra("level", level);
+                    intent.putExtra("movieId", movieData.getMovieId());
+                    context.startActivity(intent);
                 }
-            }
-        });
+            });
+
+            GlideApp.with(context.getApplicationContext())
+                    .asBitmap()
+                    .load(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + File.separator + "SilmaPeru" + File.separator + imageName)
+                    .thumbnail()
+                    .into(new SimpleTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            if (status != null && status.equals("done")) {
+                                resource = ImageUtils.applyOverlay(context, resource, R.drawable.done);
+                            }
+                            RoundedBitmapDrawable circularBitmapDrawable =
+                                    RoundedBitmapDrawableFactory.create(context.getResources(), resource);
+                            circularBitmapDrawable.setCornerRadius((float) 50.00);
+
+                            movieTile.setImageDrawable(circularBitmapDrawable);
+                        }
+                    });
+
+            flexboxLayout.addView(movieTile);
+        }
+
     }
 }
