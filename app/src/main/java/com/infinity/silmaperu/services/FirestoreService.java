@@ -22,8 +22,6 @@ import android.widget.Toast;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.storage.StorageReference;
 import com.infinity.silmaperu.R;
 import com.infinity.silmaperu.config.GlideApp;
 import com.infinity.silmaperu.domain.MappingMap;
@@ -53,6 +51,8 @@ public class FirestoreService {
     private Context context;
     private MovieData movieData;
     private RealmList<MappingMap> mappingMap;
+    private int tempAnsButton;
+    private TextView dashText;
 
 
     public FirestoreService(Context context) {
@@ -61,6 +61,8 @@ public class FirestoreService {
         db = FirebaseFirestore.getInstance();
         rootView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
         mp = MediaPlayer.create(context, R.raw.clue_click);
+
+
     }
 
     public MovieData copyToNewObject(MovieData movieDataParam) {
@@ -198,11 +200,23 @@ public class FirestoreService {
                 }
             });
             //button.setText(String.valueOf(name.charAt(i)));
+
+
+            dashText = new TextView(context);
+            dashText.setBackgroundResource(R.drawable.return_button);
+
             if (movieName.charAt(i) != ' ') {
+                tempAnsButton++;
                 buttonGroup.addView(button);
+
+                if (tempAnsButton == 8 && movieName.length() > ((i + 1) + 1) && movieName.charAt(((i + 1) + 10)) != ' ') {
+                    buttonGroup.addView(dashText);
+                }
             }
+
             Log.i("TAG", "The index is" + button.getText());
-            if (movieName.charAt(i) == ' ' || i == (movieName.length() - 1)) {
+            if (movieName.charAt(i) == ' ' || i == (movieName.length() - 1) || buttonGroup.getChildCount() == 9 ) {
+                tempAnsButton = 0;
                 flexboxLayout.addView(buttonGroup);
                 buttonGroup = new LinearLayout(context);
                 buttonGroup.setGravity(Gravity.CENTER);

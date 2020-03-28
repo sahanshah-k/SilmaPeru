@@ -14,4 +14,20 @@
     <color name="colorGreen">#00AF06</color>
     <color name="colorLightGreen">#47FF50</color>
     <color name="colorViolet">#009688</color>
+
+    <color name="colorOuter_1">#3D4FB3</color>
+    <color name="colorProgress_1">#2B3879</color>
+    <color name="colorProgressDarker_1">#1E254E</color>
+
+    <color name="colorOuter_2">#EF6C00</color>
+    <color name="colorProgress_2">#D84315</color>
+    <color name="colorProgressDarker_2">#AD340D</color>
+
+    <color name="colorOuter_3">#D12D2D</color>
+    <color name="colorProgress_3">#A02323</color>
+    <color name="colorProgressDarker_3">#7C1818</color>
+
+    <color name="colorOuter_4">#31A836</color>
+    <color name="colorProgress_4">#2E7D32</color>
+    <color name="colorProgressDarker_4">#06580C</color>
 </resources>

@@ -17,10 +17,9 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.flexbox.FlexboxLayout;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.infinity.silmaperu.MainActivity;
 import com.infinity.silmaperu.R;
+import com.infinity.silmaperu.activities.LevelActivity;
 import com.infinity.silmaperu.config.GlideApp;
 import com.infinity.silmaperu.domain.MovieData;
 import com.infinity.silmaperu.utilities.ImageUtils;
@@ -33,20 +32,13 @@ import io.realm.Realm;
 public class LevelFirestoreService {
 
     Realm realm;
-    private FirebaseFirestore db;
     private View rootView;
     private Context context;
 
     public LevelFirestoreService(Context context) {
         this.context = context;
-        db = FirebaseFirestore.getInstance();
         realm = Realm.getDefaultInstance();
-
         rootView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
-        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(true)
-                .build();
-        db.setFirestoreSettings(settings);
     }
 
     public void getLevelData(final String level) {
@@ -68,6 +60,7 @@ public class LevelFirestoreService {
                 public void onClick(View view) {
                     intent.putExtra("level", level);
                     intent.putExtra("movieId", movieData.getMovieId());
+                    ((LevelActivity) context).finish();
                     context.startActivity(intent);
                 }
             });

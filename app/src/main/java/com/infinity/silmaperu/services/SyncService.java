@@ -27,6 +27,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.infinity.silmaperu.activities.LevelActivity;
 import com.infinity.silmaperu.domain.MovieData;
+import com.infinity.silmaperu.domain.UpdateMetadata;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class SyncService {
     final private String SHUFFLED_NAME = "shuffledName";
     final private String STATUS = "status";
     final private String WIKI_CONTENT = "wikiContent";
+    private final Intent intent;
     Realm realm;
     private FirebaseFirestore db;
     private View rootView;
@@ -70,14 +72,77 @@ public class SyncService {
                 .setPersistenceEnabled(true)
                 .build();
         db.setFirestoreSettings(settings);
+        intent = new Intent(context, LevelActivity.class);
+    }
+
+    public static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
+    }
+
+    public void checkAndSync() {
+        final DocumentReference docRef = db.collection("user1").document("updateMetadata");
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        final String key = (String) document.getData().get("key");
+                        final UpdateMetadata updateMetadataOffline = realm.where(UpdateMetadata.class).findFirst();
+                        if (null == updateMetadataOffline || !updateMetadataOffline.getKey().equals(key)) {
+                            realm.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    realm.copyToRealmOrUpdate(new UpdateMetadata("uniqueKey", key));
+                                }
+                            });
+                            syncAllData();
+                        } else {
+                            //context.startActivity(intent);
+                        }
+                    } else {
+                        System.out.println("no doc");
+                       // context.startActivity(intent);
+                    }
+                } else {
+                    //context.startActivity(intent);
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
     }
 
     public void syncAllData() {
 
-        final Intent intent = new Intent(context, LevelActivity.class);
         for (int i = 1; i <= TOTAL_LEVELS; i++) {
 
             final String level = "level-" + i;
+
+            final int levelInt = i;
+
+            mStorageRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://movie-guess-c1b59.appspot.com/level-thumbs/level_" + i + ".png");
+
+            mStorageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    downloadFile(uri, "level_" + levelInt, ".png");
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle any errors
+                }
+            });
 
             final DocumentReference docRef = db.collection("user1").document(level);
             docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -97,7 +162,7 @@ public class SyncService {
                                 }
                             });
                             System.out.println("done");
-                            context.startActivity(intent);
+                           // context.startActivity(intent);
 
                         } else {
                             System.out.println("no doc");
@@ -108,7 +173,6 @@ public class SyncService {
                 }
             });
         }
-
     }
 
     private List<MovieData> convertor(Map<String, Object> hashMap, String level) {
@@ -116,13 +180,19 @@ public class SyncService {
         List<MovieData> list = new ArrayList<>();
 
         for (Map.Entry<String, Object> entry : hashMap.entrySet()) {
+            String movieId = entry.getKey();
+            MovieData movieDataTemp = realm.where(MovieData.class).equalTo("levelId", level).and().equalTo("movieId", movieId).findFirst();
+
+            if (movieDataTemp != null) {
+                continue;
+            }
 
             Map<String, Object> children = (Map<String, Object>) entry.getValue();
             //RealmList<String> mappingMap = new RealmList<>();
 
             MovieData movieData = new MovieData();
             movieData.setLevelId(level);
-            movieData.setMovieId(entry.getKey());
+            movieData.setMovieId(movieId);
             //movieData.setGuessedName((String) children.get(GUESSED_NAME));
             movieData.setMovieName((String) children.get(MOVIE_NAME));
             //movieData.setShuffledName((String) children.get(SHUFFLED_NAME));
@@ -130,14 +200,14 @@ public class SyncService {
             movieData.setWikiContent((String) children.get(WIKI_CONTENT));
             //movieData.setMappingMap(mappingMap);
             list.add(movieData);
-            final String movieImageName =  movieData.getMovieName().toLowerCase().replace(" ", "_");
+            final String movieImageName = movieData.getMovieName().toLowerCase().replace(" ", "_");
 
             mStorageRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://movie-guess-c1b59.appspot.com/" + level + "/" + movieImageName + ".jpg");
 
             mStorageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                 @Override
                 public void onSuccess(Uri uri) {
-                    downloadFile(uri, movieImageName);
+                    downloadFile(uri, movieImageName, ".jpg");
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -150,38 +220,21 @@ public class SyncService {
         return list;
     }
 
-
-    public static void verifyStoragePermissions(Activity activity) {
-        // Check if we have write permission
-        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                    activity,
-                    PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE
-            );
-        }
-    }
-
-
-    private void downloadFile(Uri uri, String fileName) {
-        replaceOrCreate(fileName);
+    private void downloadFile(Uri uri, String fileName, String ext) {
+        replaceOrCreate(fileName, ext);
         DownloadManager.Request request = new DownloadManager.Request(uri);
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, "SilmaPeru" + File.separator + fileName + ".jpg");
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, "SilmaPeru" + File.separator + fileName + ext);
         DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
         manager.enqueue(request);
     }
 
-    public void replaceOrCreate(String fname){
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + Environment.DIRECTORY_PICTURES + File.separator + "SilmaPeru" + File.separator + fname + ".jpg";
+    public void replaceOrCreate(String fname, String ext) {
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + Environment.DIRECTORY_PICTURES + File.separator + "SilmaPeru" + File.separator + fname + ext;
         File file = new File(path);
-        if(file.exists()) {
+        if (file.exists()) {
             file.delete();
         }
     }
-
 
 
 }

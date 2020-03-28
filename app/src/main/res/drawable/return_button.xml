@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item>
+        <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle" >
+            <corners
+                android:radius="4dp"
+                />
+            <solid
+                android:color="#000000"
+                />
+            <padding
+                android:left="0dp"
+                android:top="0dp"
+                android:right="0dp"
+                android:bottom="0dp"
+                />
+            <size
+                android:width="50px"
+                android:height="50px"
+                />
+        </shape>
+    </item>
+    <item android:drawable="@drawable/ic_keyboard_return_black_24dp" />
+</layer-list>

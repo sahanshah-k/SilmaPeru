@@ -1,12 +1,14 @@
 package com.infinity.silmaperu;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 
+import com.infinity.silmaperu.activities.LevelActivity;
 import com.infinity.silmaperu.services.FirestoreService;
 
 
@@ -16,6 +18,14 @@ public class MainActivity extends AppCompatActivity {
     private String movieId;
     private String level;
     AppCompatImageView backButton;
+
+    @Override
+    public void onBackPressed() {
+        Intent levelActivity = new Intent(getApplicationContext(), LevelActivity.class);
+        levelActivity.putExtra("level", Integer.parseInt(level.substring(6)));
+        finish();
+        startActivity(levelActivity);
+    }
 
     @Override
     protected void onPause() {
@@ -44,7 +54,10 @@ public class MainActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent levelActivity = new Intent(getApplicationContext(), LevelActivity.class);
+                levelActivity.putExtra("level", Integer.parseInt(level.substring(6)));
                 finish();
+                startActivity(levelActivity);
             }
         });
 
