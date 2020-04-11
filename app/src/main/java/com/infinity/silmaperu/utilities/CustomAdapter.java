@@ -78,6 +78,8 @@ public class CustomAdapter extends ArrayAdapter<ListModel> implements View.OnCli
             viewHolder.listPercentage = (TextView) convertView.findViewById(R.id.list_percentage);
             viewHolder.listProgressBar = (ProgressBar) convertView.findViewById(R.id.list_progressBar);
             viewHolder.constraintLayout = (ConstraintLayout) convertView.findViewById(R.id.level_row_id);
+            viewHolder.unlockMessage = (TextView) convertView.findViewById(R.id.unlock_message);
+            viewHolder.unlockSymbol = (ImageView) convertView.findViewById(R.id.lock_white);
 
             result = convertView;
 
@@ -95,20 +97,36 @@ public class CustomAdapter extends ArrayAdapter<ListModel> implements View.OnCli
 
         //viewHolder.listImage.setImageDrawable(dataModel.getLevel());
         viewHolder.listLevel.setText("Level " + dataModel.getLevel());
-        outOf = dataModel.getTotalDone() + "/" + dataModel.getTotal();
-        percentage = Math.round(((float) dataModel.getTotalDone() / (float) dataModel.getTotal()) * 100);
-        viewHolder.listOutOf.setText(outOf);
-        viewHolder.listPercentage.setText(percentage + "%");
-        viewHolder.listProgressBar.setProgress(percentage);
         viewHolder.listImage.setImageBitmap(bmp);
+
+        if (dataModel.isLockStatus()) {
+            viewHolder.listPercentage.setVisibility(View.GONE);
+            viewHolder.listProgressBar.setVisibility(View.GONE);
+            viewHolder.listOutOf.setVisibility(View.GONE);
+            viewHolder.unlockSymbol.setVisibility(View.VISIBLE);
+            viewHolder.unlockMessage.setVisibility(View.VISIBLE);
+            String message = "";
+            if (dataModel.getToUnlock() == 1) {
+                message = "Answer " + dataModel.getToUnlock() + " movie to unlock";
+            } else {
+                message = "Answer " + dataModel.getToUnlock() + " movies to unlock";
+            }
+            viewHolder.unlockMessage.setText(message);
+        } else {
+            percentage = Math.round(((float) dataModel.getTotalDone() / (float) dataModel.getTotal()) * 100);
+            viewHolder.listPercentage.setText(percentage + "%");
+            viewHolder.listProgressBar.setProgress(percentage);
+            outOf = dataModel.getTotalDone() + "/" + dataModel.getTotal();
+            viewHolder.listOutOf.setText(outOf);
+        }
 
         //int resID = mContext.getResources().getIdentifier(buttonID, "id", mContext.getPackageName());
 
         int levelRes = dataModel.getLevel();
 
-        int darkRes = mContext.getResources().getIdentifier("colorProgressDarker_"+levelRes, "color", mContext.getPackageName());
-        int lightRes = mContext.getResources().getIdentifier("colorProgress_"+levelRes, "color", mContext.getPackageName());
-        int outerRes = mContext.getResources().getIdentifier("colorOuter_"+levelRes, "color", mContext.getPackageName());
+        int darkRes = mContext.getResources().getIdentifier("colorProgressDarker_" + levelRes, "color", mContext.getPackageName());
+        int lightRes = mContext.getResources().getIdentifier("colorProgress_" + levelRes, "color", mContext.getPackageName());
+        int outerRes = mContext.getResources().getIdentifier("colorOuter_" + levelRes, "color", mContext.getPackageName());
 
 
         LayerDrawable shape = (LayerDrawable) viewHolder.listProgressBar.getProgressDrawable();
@@ -124,8 +142,6 @@ public class CustomAdapter extends ArrayAdapter<ListModel> implements View.OnCli
         }
 
 
-
-
         return convertView;
     }
 
@@ -135,6 +151,8 @@ public class CustomAdapter extends ArrayAdapter<ListModel> implements View.OnCli
         TextView listLevel;
         TextView listOutOf;
         TextView listPercentage;
+        TextView unlockMessage;
+        ImageView unlockSymbol;
         ConstraintLayout constraintLayout;
     }
 

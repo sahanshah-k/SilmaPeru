@@ -21,7 +21,6 @@ import android.widget.Toast;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.flexbox.FlexboxLayout;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.infinity.silmaperu.R;
 import com.infinity.silmaperu.config.GlideApp;
 import com.infinity.silmaperu.domain.MappingMap;
@@ -29,6 +28,7 @@ import com.infinity.silmaperu.domain.MovieData;
 import com.infinity.silmaperu.utilities.Constants;
 import com.infinity.silmaperu.utilities.ImageUtils;
 import com.infinity.silmaperu.utilities.MyLeadingMarginSpan2;
+import com.infinity.silmaperu.utilities.SoundUtil;
 import com.infinity.silmaperu.utilities.StringUtilsCustom;
 
 import java.io.File;
@@ -46,7 +46,6 @@ public class FirestoreService {
     String status = "";
     FlexboxLayout flexboxLayoutClue;
     String wikiContentString = "";
-    private FirebaseFirestore db;
     private View rootView;
     private Context context;
     private MovieData movieData;
@@ -58,11 +57,8 @@ public class FirestoreService {
     public FirestoreService(Context context) {
         this.context = context;
         realm = Realm.getDefaultInstance();
-        db = FirebaseFirestore.getInstance();
         rootView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
         mp = MediaPlayer.create(context, R.raw.clue_click);
-
-
     }
 
     public MovieData copyToNewObject(MovieData movieDataParam) {
@@ -87,25 +83,12 @@ public class FirestoreService {
         movieData = copyToNewObject(movieDataTemp);
 
         StringUtilsCustom stringUtilsCustom = new StringUtilsCustom();
-
-        //Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-        //currentMovie = (Map<String, Object>) document.get(movieArg);
-
-        //guessedName = (String) currentMovie.get("guessedName");
         guessedName = movieData.getGuessedName();
-        //String movieName = (String) currentMovie.get("movieName");
         String movieName = movieData.getMovieName();
-        //String clueMovieName = (String) currentMovie.get("shuffledName");
         String clueMovieName = movieData.getShuffledName();
-        //mappingMap = (Map<String, String>) currentMovie.get("mappingMap");
         mappingMap = movieData.getMappingMap();
-        //status = (String) currentMovie.get("status");
         status = movieData.getStatus();
         wikiContentString = movieData.getWikiContent();
-
-                   /* if (mappingMap == null) {
-                        mappingMap = new HashMap<>();
-                    }*/
 
         if (guessedName == null) {
             String tempGuessedName = "";
@@ -115,22 +98,14 @@ public class FirestoreService {
             guessedName = tempGuessedName;
         }
 
-        //currentMovie.put("guessedName", guessedName);
         movieData.setGuessedName(guessedName);
-        //String imageUrl = "gs://movie-guess-c1b59.appspot.com/" + level + "/" + movieName.toLowerCase().replace(" ", "_") + ".jpg";
         String imageName = movieName.toLowerCase().replace(" ", "_") + ".jpg";
 
         final ArrayList<Integer> clueHidden = new ArrayList<>();
-//                    for (Map.Entry<String, String> entry : mappingMap.entrySet()) {
-//                        clueHidden.add(Integer.parseInt(entry.getValue()));
-//                    }
 
         for (MappingMap entry : mappingMap) {
             clueHidden.add(Integer.parseInt(entry.getValue()));
         }
-
-        // mStorageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
-
 
         GlideApp.with(context.getApplicationContext())
                 .asBitmap()
@@ -160,9 +135,7 @@ public class FirestoreService {
             button.setGravity(Gravity.CENTER);
             button.setBackgroundResource(R.drawable.answer_button);
             button.setTextColor(context.getResources().getColor(R.color.colorWhite));
-            //button.setBackground(R.drawable.answer_button);
             button.setId(i + 1000);
-            //button.setBackgroundColor(R.color.colorWhite);
 
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -178,30 +151,18 @@ public class FirestoreService {
                         guessedName = guessedName.substring(0, button.getId() - 1000)
                                 + "*"
                                 + guessedName.substring(button.getId() - 1000 + 1);
-                        //currentMovie.put("guessedName", guessedName);
                         movieData.setGuessedName(guessedName);
-                        //mappingMap.remove(buttonIdString);
-             /*                       realm.executeTransaction(new Realm.Transaction() {
-                                        @Override
-                                        public void execute(Realm realm) {
-                                            RealmResults<MappingMap> result = realm.where(MappingMap.class).equalTo("key",buttonIdString).findAll();
-                                            result.deleteAllFromRealm();
-                                        }
-                                    });*/
                         realm.executeTransaction(new Realm.Transaction() {
                             @Override
                             public void execute(Realm realm) {
                                 mappingMap.remove(mappingMapButtonId);
                             }
                         });
-                        //currentMovie.put("mappingMap", mappingMap);
                         movieData.setMappingMap(mappingMap);
                     }
 
                 }
             });
-            //button.setText(String.valueOf(name.charAt(i)));
-
 
             dashText = new TextView(context);
             dashText.setBackgroundResource(R.drawable.return_button);
@@ -233,7 +194,6 @@ public class FirestoreService {
         }
         if (clueMovieName == null) {
             clueMovieName = stringUtilsCustom.findRemaining(movieName.replaceAll(" ", ""));
-            //currentMovie.put("shuffledName", clueMovieName);
             movieData.setShuffledName(clueMovieName);
         }
 
@@ -304,8 +264,6 @@ public class FirestoreService {
                 answerButton.setText(String.valueOf(guessedName.charAt(i)));
             }
         }
-
-
     }
 
     public void updateMap() {
@@ -316,16 +274,11 @@ public class FirestoreService {
             }
         });
 
-       /* final DocumentReference updateDocRef = db.collection("user1").document(level);
-        if (currentMovie != null) {
-            updateDocRef.update(movieArg, currentMovie);
-        }*/
     }
 
 
     public void buttonAction(final Button clueButton) {
 
-        //String movieName = (String) currentMovie.get("movieName");
         String movieName = movieData.getMovieName();
 
         String pureGuessedName = guessedName.replace("*", "");
@@ -344,9 +297,7 @@ public class FirestoreService {
                     guessedName = guessedName.substring(0, i)
                             + clueButton.getText().toString()
                             + guessedName.substring(i + 1);
-                    //currentMovie.put("guessedName", guessedName);
                     movieData.setGuessedName(guessedName);
-                    //mappingMap.put(String.valueOf(1000 + i), String.valueOf(clueButton.getId()));
                     final MappingMap mappingMapGuessed = new MappingMap(String.valueOf(1000 + i), String.valueOf(clueButton.getId()));
                     realm.executeTransaction(new Realm.Transaction() {
                         @Override
@@ -354,7 +305,6 @@ public class FirestoreService {
                             mappingMap.add(mappingMapGuessed);
                         }
                     });
-                    //currentMovie.put("mappingMap", mappingMap);
                     movieData.setMappingMap(mappingMap);
                     movieData.setMappingMap(mappingMap);
                     break;
@@ -372,7 +322,6 @@ public class FirestoreService {
             if (pureGuessedName.equals(pureMovieName)) {
                 MediaPlayer successSound = MediaPlayer.create(context, R.raw.success);
                 Toast.makeText(context, "Awesome", Toast.LENGTH_LONG).show();
-                //currentMovie.put("status", "done");
                 movieData.setStatus("done");
                 flexboxLayoutClue.setVisibility(View.INVISIBLE);
                 SpannableString ss;
@@ -405,9 +354,8 @@ public class FirestoreService {
                 successSound.start();
 
             } else if (pureGuessedName.length() == pureMovieName.length()) {
-                MediaPlayer wrongSound = MediaPlayer.create(context, R.raw.wrong);
                 Toast.makeText(context, "Wrong Answer!", Toast.LENGTH_LONG).show();
-                wrongSound.start();
+                SoundUtil.playWrongSound(context);
             }
 
         }

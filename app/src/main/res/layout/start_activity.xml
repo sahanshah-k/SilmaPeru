@@ -17,6 +17,7 @@
         app:popupTheme="@style/Widget.AppCompat.PopupMenu">
 
         <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/startactivity_back"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:src="@drawable/ic_arrow_back_black_24dp"/>

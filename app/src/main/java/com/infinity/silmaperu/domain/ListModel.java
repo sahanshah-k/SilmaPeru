@@ -4,11 +4,15 @@ public class ListModel {
     private int level;
     private int total;
     private int totalDone;
+    private boolean lockStatus;
+    private int toUnlock;
 
-    public ListModel(int level, int total, int totalDone) {
+    public ListModel(int level, int total, int totalDone, boolean lockStatus, int toUnlock) {
         this.level = level;
         this.total = total;
         this.totalDone = totalDone;
+        this.lockStatus = lockStatus;
+        this.toUnlock = toUnlock;
     }
 
     public int getLevel() {
@@ -34,4 +38,21 @@ public class ListModel {
     public void setTotalDone(int totalDone) {
         this.totalDone = totalDone;
     }
+
+    public boolean isLockStatus() {
+        return lockStatus;
+    }
+
+    public void setLockStatus(boolean lockStatus) {
+        this.lockStatus = lockStatus;
+    }
+
+    public int getToUnlock() {
+        return toUnlock;
+    }
+
+    public void setToUnlock(int toUnlock) {
+        this.toUnlock = toUnlock;
+    }
+
 }

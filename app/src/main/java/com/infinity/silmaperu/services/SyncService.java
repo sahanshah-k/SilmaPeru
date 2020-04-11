@@ -3,11 +3,9 @@ package com.infinity.silmaperu.services;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
@@ -44,12 +42,6 @@ import static com.infinity.silmaperu.config.Constants.TOTAL_LEVELS;
 
 public class SyncService {
 
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static String[] PERMISSIONS_STORAGE = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
-
     final private String MOVIE_NAME = "movieName";
     final private String WIKI_CONTENT = "wikiContent";
     private final Intent intent;
@@ -79,22 +71,8 @@ public class SyncService {
     }
 
 
-    public static void verifyStoragePermissions(Activity activity) {
-        // Check if we have write permission
-        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                    activity,
-                    PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE
-            );
-        }
-    }
-
     public void checkAndSync() {
-        verifyStoragePermissions((Activity) context);
+
         final DocumentReference docRef = db.collection("user1").document("updateMetadata");
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -121,7 +99,6 @@ public class SyncService {
                     }
                 } else {
                     startNextActivity();
-                    Log.d(TAG, "get failed with ", task.getException());
                 }
             }
         });
