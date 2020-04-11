@@ -4,9 +4,9 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
     <color name="colorWhite">#ffff</color>
-    <color name="colorWhiteFade">#BEBEBE</color>
+    <color name="colorWhiteFade">#757575</color>
     <color name="colorBlack">#000000</color>
-    <color name="colorLightBlack">#A5A5A5</color>
+    <color name="colorLightBlack">#414EAC</color>
 
 
     <color name="colorRed">#CC0000</color>
@@ -15,7 +15,7 @@
     <color name="colorLightGreen">#47FF50</color>
     <color name="colorViolet">#009688</color>
 
-    <color name="colorOuter_1">#3D4FB3</color>
+    <color name="colorOuter_1">#FF3D4FB3</color>
     <color name="colorProgress_1">#2B3879</color>
     <color name="colorProgressDarker_1">#1E254E</color>
 
@@ -30,4 +30,28 @@
     <color name="colorOuter_4">#31A836</color>
     <color name="colorProgress_4">#2E7D32</color>
     <color name="colorProgressDarker_4">#06580C</color>
+
+    <color name="colorOuter_5">#F9A825</color>
+    <color name="colorProgress_5">#B87711</color>
+    <color name="colorProgressDarker_5">#925800</color>
+
+    <color name="colorOuter_6">#6A1B9A</color>
+    <color name="colorProgress_6">#5C1785</color>
+    <color name="colorProgressDarker_6">#4C146F</color>
+
+    <color name="colorOuter_7">#00838F</color>
+    <color name="colorProgress_7">#005C68</color>
+    <color name="colorProgressDarker_7">#004047</color>
+
+    <color name="colorOuter_8">#9E9D24</color>
+    <color name="colorProgress_8">#7A791B</color>
+    <color name="colorProgressDarker_8">#555414</color>
+
+    <color name="colorOuter_9">#AD1457</color>
+    <color name="colorProgress_9">#8B1046</color>
+    <color name="colorProgressDarker_9">#520828</color>
+
+    <color name="colorOuter_10">#FF8F00</color>
+    <color name="colorProgress_10">#A85F00</color>
+    <color name="colorProgressDarker_10">#7E4702</color>
 </resources>

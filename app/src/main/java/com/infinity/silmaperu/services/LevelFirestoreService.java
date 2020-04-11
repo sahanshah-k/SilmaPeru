@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.flexbox.FlexboxLayout;
@@ -60,15 +61,14 @@ public class LevelFirestoreService {
                 public void onClick(View view) {
                     intent.putExtra("level", level);
                     intent.putExtra("movieId", movieData.getMovieId());
-                    ((LevelActivity) context).finish();
                     context.startActivity(intent);
+                    ((LevelActivity) context).finish();
                 }
             });
 
             GlideApp.with(context.getApplicationContext())
                     .asBitmap()
                     .load(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + File.separator + "SilmaPeru" + File.separator + imageName)
-                    .thumbnail()
                     .into(new SimpleTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -78,7 +78,6 @@ public class LevelFirestoreService {
                             RoundedBitmapDrawable circularBitmapDrawable =
                                     RoundedBitmapDrawableFactory.create(context.getResources(), resource);
                             circularBitmapDrawable.setCornerRadius((float) 50.00);
-
                             movieTile.setImageDrawable(circularBitmapDrawable);
                         }
                     });

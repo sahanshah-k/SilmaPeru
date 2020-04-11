@@ -5,13 +5,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="match_parent">
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar_display_users"
+        android:id="@+id/level_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/title_bar"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:layout_constraintTop_toTopOf="parent"
-        app:popupTheme="@style/Widget.AppCompat.PopupMenu">
+        >
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="35dp"
@@ -19,13 +19,13 @@
             android:src="@drawable/ic_arrow_back_black_24dp"/>
 
         <TextView
-            android:id="@+id/display_name_display_users"
+            android:id="@+id/level_activity_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingRight="35dp"
             android:text="LEVEL 1"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@color/colorWhite"
             android:textSize="20dp"
             android:textStyle="bold" />
     </androidx.appcompat.widget.Toolbar>
@@ -44,7 +44,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.52"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_display_users"
+        app:layout_constraintTop_toBottomOf="@+id/level_toolbar"
         app:layout_constraintVertical_bias="0.0"></com.google.android.flexbox.FlexboxLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

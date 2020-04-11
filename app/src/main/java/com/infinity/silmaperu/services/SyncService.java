@@ -11,21 +11,24 @@ import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.infinity.silmaperu.activities.LevelActivity;
+import com.infinity.silmaperu.R;
+import com.infinity.silmaperu.activities.LaunchAppActivity;
+import com.infinity.silmaperu.activities.LoadingActivity;
 import com.infinity.silmaperu.domain.MovieData;
 import com.infinity.silmaperu.domain.UpdateMetadata;
 
@@ -47,33 +50,34 @@ public class SyncService {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
-
-    final private String MAPPING_MAP = "mappingMap";
-    final private String GUESSED_NAME = "guessedName";
     final private String MOVIE_NAME = "movieName";
-    final private String SHUFFLED_NAME = "shuffledName";
-    final private String STATUS = "status";
     final private String WIKI_CONTENT = "wikiContent";
     private final Intent intent;
     Realm realm;
     private FirebaseFirestore db;
-    private View rootView;
+    private FirebaseStorage storageInstance;
     private Context context;
-    private StorageReference mStorageRef;
-
+    private StorageReference storageReferenceDownload;
+    private int downloadCount;
+    private int monitorDownload;
+    private View rootView;
+    private TextView loadingPercentage;
 
     public SyncService(Context context) {
-        verifyStoragePermissions((Activity) context);
         this.context = context;
         db = FirebaseFirestore.getInstance();
-        realm = Realm.getDefaultInstance();
+        storageInstance = FirebaseStorage.getInstance();
         rootView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
+        storageReferenceDownload = storageInstance.getReferenceFromUrl("gs://movie-guess-c1b59.appspot.com");
+        realm = Realm.getDefaultInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(true)
                 .build();
         db.setFirestoreSettings(settings);
-        intent = new Intent(context, LevelActivity.class);
+        intent = new Intent(context, LaunchAppActivity.class);
+        loadingPercentage = rootView.findViewById(R.id.loading_percentage);
     }
+
 
     public static void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
@@ -90,6 +94,7 @@ public class SyncService {
     }
 
     public void checkAndSync() {
+        verifyStoragePermissions((Activity) context);
         final DocumentReference docRef = db.collection("user1").document("updateMetadata");
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -97,6 +102,7 @@ public class SyncService {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
+
                         final String key = (String) document.getData().get("key");
                         final UpdateMetadata updateMetadataOffline = realm.where(UpdateMetadata.class).findFirst();
                         if (null == updateMetadataOffline || !updateMetadataOffline.getKey().equals(key)) {
@@ -104,22 +110,62 @@ public class SyncService {
                                 @Override
                                 public void execute(Realm realm) {
                                     realm.copyToRealmOrUpdate(new UpdateMetadata("uniqueKey", key));
+                                    getCountAndThenSync();
                                 }
                             });
-                            syncAllData();
                         } else {
-                            //context.startActivity(intent);
+                            startNextActivity();
                         }
                     } else {
-                        System.out.println("no doc");
-                       // context.startActivity(intent);
+                        startNextActivity();
                     }
                 } else {
-                    //context.startActivity(intent);
+                    startNextActivity();
                     Log.d(TAG, "get failed with ", task.getException());
                 }
             }
         });
+    }
+
+    public void startNextActivity() {
+        //context.unregisterReceiver(onDownloadComplete);
+        context.startActivity(intent);
+        ((LoadingActivity) context).finish();
+    }
+
+    public void getCountAndThenSync() {
+        for (int i = 1; i <= TOTAL_LEVELS; i++) {
+
+            final String level = "level-" + i;
+            final DocumentReference docRef = db.collection("user1").document(level);
+
+            final int finalI = i;
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @SuppressLint("LongLogTag")
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            Map<String, Object> hashMap = document.getData();
+                            downloadCount += hashMap != null ? hashMap.size() : 0;
+                            if (finalI == TOTAL_LEVELS) {
+                                loadingPercentage.setVisibility(View.VISIBLE);
+                                downloadCount += TOTAL_LEVELS;
+                                syncAllData();
+                            }
+                        } else {
+                            startNextActivity();
+                        }
+                    } else {
+                        Log.d(TAG, "get failed with ", task.getException());
+                        startNextActivity();
+                    }
+                }
+            });
+
+
+        }
     }
 
     public void syncAllData() {
@@ -130,23 +176,10 @@ public class SyncService {
 
             final int levelInt = i;
 
-            mStorageRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://movie-guess-c1b59.appspot.com/level-thumbs/level_" + i + ".png");
-
-            mStorageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    downloadFile(uri, "level_" + levelInt, ".png");
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    // Handle any errors
-                }
-            });
+            downloadFile2("level_" + i, ".png", "level-thumbs/level_" + i + ".png");
 
             final DocumentReference docRef = db.collection("user1").document(level);
             docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-
                 @SuppressLint("LongLogTag")
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -161,14 +194,12 @@ public class SyncService {
                                     realm.copyToRealmOrUpdate(convertor(hashMap, level));
                                 }
                             });
-                            System.out.println("done");
-                           // context.startActivity(intent);
-
                         } else {
-                            System.out.println("no doc");
+                            startNextActivity();
                         }
                     } else {
                         Log.d(TAG, "get failed with ", task.getException());
+                        startNextActivity();
                     }
                 }
             });
@@ -188,44 +219,41 @@ public class SyncService {
             }
 
             Map<String, Object> children = (Map<String, Object>) entry.getValue();
-            //RealmList<String> mappingMap = new RealmList<>();
-
             MovieData movieData = new MovieData();
             movieData.setLevelId(level);
             movieData.setMovieId(movieId);
-            //movieData.setGuessedName((String) children.get(GUESSED_NAME));
             movieData.setMovieName((String) children.get(MOVIE_NAME));
-            //movieData.setShuffledName((String) children.get(SHUFFLED_NAME));
-            //movieData.setStatus((String) children.get(STATUS));
             movieData.setWikiContent((String) children.get(WIKI_CONTENT));
-            //movieData.setMappingMap(mappingMap);
             list.add(movieData);
             final String movieImageName = movieData.getMovieName().toLowerCase().replace(" ", "_");
 
-            mStorageRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://movie-guess-c1b59.appspot.com/" + level + "/" + movieImageName + ".jpg");
-
-            mStorageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    downloadFile(uri, movieImageName, ".jpg");
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    // Handle any errors
-                }
-            });
+            downloadFile2(movieImageName, ".jpg", level + "/" + movieImageName + ".jpg");
         }
 
         return list;
     }
 
-    private void downloadFile(Uri uri, String fileName, String ext) {
+    private void downloadFile2(String fileName, String ext, final String getPath) {
         replaceOrCreate(fileName, ext);
-        DownloadManager.Request request = new DownloadManager.Request(uri);
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, "SilmaPeru" + File.separator + fileName + ext);
-        DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-        manager.enqueue(request);
+        StorageReference pathReference = storageReferenceDownload.child(getPath);
+        File rootPath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "SilmaPeru");
+        if (!rootPath.exists()) {
+            rootPath.mkdirs();
+        }
+
+        final File localFile = new File(rootPath, fileName + ext);
+
+        pathReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                monitorDownload++;
+                int percetageText = Math.round(((float) monitorDownload / (float) downloadCount) * 100);
+                loadingPercentage.setText( percetageText + "%");
+                if (monitorDownload >= downloadCount) {
+                    startNextActivity();
+                }
+            }
+        });
     }
 
     public void replaceOrCreate(String fname, String ext) {

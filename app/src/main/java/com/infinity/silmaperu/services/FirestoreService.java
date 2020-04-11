@@ -209,7 +209,7 @@ public class FirestoreService {
                 tempAnsButton++;
                 buttonGroup.addView(button);
 
-                if (tempAnsButton == 8 && movieName.length() > ((i + 1) + 1) && movieName.charAt(((i + 1) + 10)) != ' ') {
+                if (tempAnsButton == 8 && movieName.length() > ((i + 1) + 1) && movieName.charAt(((i + 1) + 2)) != ' ' && movieName.charAt(((i + 1) + 1)) != ' ' && movieName.charAt(((i + 1))) != ' ') {
                     buttonGroup.addView(dashText);
                 }
             }

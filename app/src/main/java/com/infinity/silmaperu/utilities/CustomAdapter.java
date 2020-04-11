@@ -123,9 +123,8 @@ public class CustomAdapter extends ArrayAdapter<ListModel> implements View.OnCli
             constraintLayoutBackground.setTint(mContext.getResources().getColor(outerRes));
         }
 
-      /*  LayerDrawable layerDrawableProgress = (LayerDrawable) viewHolder.listProgressBar.getProgressDrawable();
-        GradientDrawable outer = (GradientDrawable) layerDrawableProgress.findDrawableByLayerId(R.id.progress_dark);
-        outer.setColor(mContext.getResources().getColor(R.color.colorWhite));*/
+
+
 
         return convertView;
     }

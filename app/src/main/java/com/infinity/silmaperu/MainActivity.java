@@ -23,8 +23,8 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         Intent levelActivity = new Intent(getApplicationContext(), LevelActivity.class);
         levelActivity.putExtra("level", Integer.parseInt(level.substring(6)));
-        finish();
         startActivity(levelActivity);
+        finish();
     }
 
     @Override
@@ -56,8 +56,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent levelActivity = new Intent(getApplicationContext(), LevelActivity.class);
                 levelActivity.putExtra("level", Integer.parseInt(level.substring(6)));
-                finish();
                 startActivity(levelActivity);
+                finish();
             }
         });
 
@@ -65,8 +65,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         firestoreService.getCurrentMovieData(level, movieId);
-
-
 
     }
 }

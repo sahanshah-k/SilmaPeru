@@ -5,7 +5,7 @@
         android:topRightRadius="30dp"
         />
     <solid
-        android:color="@color/colorLightBlack"
+        android:color="@color/colorWhiteFade"
         />
     <padding
         android:left="0dp"

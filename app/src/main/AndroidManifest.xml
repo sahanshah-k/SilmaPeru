@@ -22,15 +22,25 @@
 
         <activity android:name=".activities.StartActivity"
             android:launchMode="singleTask">
+
+        </activity>
+
+        <activity android:name=".activities.LevelActivity"
+            android:launchMode="singleTask">
+
+        </activity>
+        <activity android:name=".activities.LaunchAppActivity"
+            android:launchMode="singleTask">
+
+        </activity>
+
+        <activity android:name=".activities.LoadingActivity"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <activity android:name=".activities.LevelActivity"
-            android:launchMode="singleTask">
 
         </activity>
     </application>
