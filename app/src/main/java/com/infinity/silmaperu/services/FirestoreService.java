@@ -154,8 +154,9 @@ public class FirestoreService {
             FlexboxLayout flexboxLayout = rootView.findViewById(R.id.answer_layout);
             final Button button = new Button(context);
             button.setLayoutParams(linearLayoutAnswer);
-            button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 23);
-            button.setTypeface(Typeface.createFromAsset(context.getAssets(), "guess_font_primetime.ttf"));
+            button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 26);
+            button.setPadding(0, 0, 0, 0);
+            button.setTypeface(Typeface.createFromAsset(context.getAssets(), "seguibl.ttf"));
             button.setGravity(Gravity.CENTER);
             button.setBackgroundResource(R.drawable.answer_button);
             button.setTextColor(context.getResources().getColor(R.color.colorWhite));
@@ -209,13 +210,17 @@ public class FirestoreService {
                 tempAnsButton++;
                 buttonGroup.addView(button);
 
-                if (tempAnsButton == 8 && movieName.length() > ((i + 1) + 1) && movieName.charAt(((i + 1) + 2)) != ' ' && movieName.charAt(((i + 1) + 1)) != ' ' && movieName.charAt(((i + 1))) != ' ') {
+                if (tempAnsButton == 8 && movieName.length() > ((i + 1) + 1) && checkNotWhiteSpace(movieName, (i + 1) + 1) && checkNotWhiteSpace(movieName, i + 1)) {
                     buttonGroup.addView(dashText);
                 }
+
+/*                if (tempAnsButton == 8 && movieName.length() > ((i + 1) + 1) && movieName.charAt(((i + 1) + 2)) != ' ' && movieName.charAt(((i + 1) + 1)) != ' ' && movieName.charAt(((i + 1))) != ' ') {
+                    buttonGroup.addView(dashText);
+                }*/
             }
 
             Log.i("TAG", "The index is" + button.getText());
-            if (movieName.charAt(i) == ' ' || i == (movieName.length() - 1) || buttonGroup.getChildCount() == 9 ) {
+            if (movieName.charAt(i) == ' ' || i == (movieName.length() - 1) || buttonGroup.getChildCount() == 9) {
                 tempAnsButton = 0;
                 flexboxLayout.addView(buttonGroup);
                 buttonGroup = new LinearLayout(context);
@@ -238,8 +243,9 @@ public class FirestoreService {
             final Button button = new Button(context);
             button.setId(2000 + i);
             button.setLayoutParams(linearLayoutClue);
-            button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 23);
-            button.setTypeface(Typeface.createFromAsset(context.getAssets(), "guess_font_primetime.ttf"));
+            button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 26);
+            button.setPadding(0, 0, 0, 0);
+            button.setTypeface(Typeface.createFromAsset(context.getAssets(), "seguibl.ttf"));
             button.setGravity(Gravity.CENTER);
             flexboxLayoutClue = rootView.findViewById(R.id.name_scrambled_layout);
 
@@ -405,6 +411,18 @@ public class FirestoreService {
             }
 
         }
+    }
+
+
+    public boolean checkNotWhiteSpace(String movieName, int pos) {
+        try {
+            if (movieName.charAt(pos) != ' ') {
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
     }
 
 }
