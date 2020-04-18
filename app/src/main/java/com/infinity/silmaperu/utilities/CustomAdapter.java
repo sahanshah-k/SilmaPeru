@@ -3,12 +3,9 @@ package com.infinity.silmaperu.utilities;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
-import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +17,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.infinity.silmaperu.R;
@@ -36,9 +32,11 @@ public class CustomAdapter extends ArrayAdapter<ListModel> implements View.OnCli
     int percentage;
     private ArrayList<ListModel> dataSet;
     private int lastPosition = -1;
+    String cachePath;
 
     public CustomAdapter(ArrayList<ListModel> data, Context context) {
         super(context, R.layout.level_row_item, data);
+        cachePath = context.getExternalCacheDir().getPath();
         this.dataSet = data;
         this.mContext = context;
     }
@@ -60,10 +58,8 @@ public class CustomAdapter extends ArrayAdapter<ListModel> implements View.OnCli
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // Get the data item for this position
         ListModel dataModel = getItem(position);
-        // Check if an existing view is being reused, otherwise inflate the view
-        ViewHolder viewHolder; // view lookup cache stored in tag
+        ViewHolder viewHolder;
 
         final View result;
 
@@ -93,7 +89,7 @@ public class CustomAdapter extends ArrayAdapter<ListModel> implements View.OnCli
         result.startAnimation(animation);
         lastPosition = position;
 
-        Bitmap bmp = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + Environment.DIRECTORY_PICTURES + File.separator + "SilmaPeru" + File.separator + "level_" + dataModel.getLevel() + ".png");
+        Bitmap bmp = BitmapFactory.decodeFile(cachePath + File.separator + "SilmaPeru" + File.separator + "level_" + dataModel.getLevel() + ".png");
 
         //viewHolder.listImage.setImageDrawable(dataModel.getLevel());
         viewHolder.listLevel.setText("Level " + dataModel.getLevel());

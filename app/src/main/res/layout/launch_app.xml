@@ -25,6 +25,7 @@
         android:id="@+id/play"
         android:layout_width="@dimen/_85sdp"
         android:layout_height="@dimen/_45sdp"
+
         app:layout_constraintBottom_toBottomOf="@+id/imageView4"
         app:layout_constraintEnd_toEndOf="@+id/imageView4"
         app:layout_constraintHorizontal_bias="0.56"
@@ -37,13 +38,16 @@
         android:id="@+id/help"
         android:layout_width="@dimen/_70sdp"
         android:layout_height="@dimen/_39sdp"
+        android:layout_marginStart="52dp"
+        android:layout_marginTop="12dp"
         android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/play"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView4"
         app:layout_constraintEnd_toStartOf="@+id/play"
-        app:layout_constraintHorizontal_bias="0.907"
+        app:layout_constraintHorizontal_bias="0.692"
         app:layout_constraintStart_toStartOf="@+id/imageView4"
         app:layout_constraintTop_toTopOf="@+id/play"
-        app:layout_constraintVertical_bias="1.0"
+        app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/help" />
 
     <ImageView

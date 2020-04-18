@@ -2,12 +2,14 @@ package com.infinity.silmaperu.services;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.os.Build;
-import android.os.Environment;
 import android.text.Layout;
 import android.text.SpannableString;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -20,7 +22,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.flexbox.FlexboxLayout;
+import com.infinity.silmaperu.MainActivity;
 import com.infinity.silmaperu.R;
 import com.infinity.silmaperu.config.GlideApp;
 import com.infinity.silmaperu.domain.MappingMap;
@@ -32,6 +36,7 @@ import com.infinity.silmaperu.utilities.SoundUtil;
 import com.infinity.silmaperu.utilities.StringUtilsCustom;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 import io.realm.Realm;
@@ -52,13 +57,26 @@ public class FirestoreService {
     private RealmList<MappingMap> mappingMap;
     private int tempAnsButton;
     private TextView dashText;
-
+    private String imageName;
+    private int width;
+    String cachePath;
 
     public FirestoreService(Context context) {
         this.context = context;
         realm = Realm.getDefaultInstance();
         rootView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
         mp = MediaPlayer.create(context, R.raw.clue_click);
+        cachePath = context.getExternalCacheDir().getPath();
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+        width = displayMetrics.widthPixels;
+        if (width > 0) {
+            width = width / 120;
+        } else {
+            width = 9;
+        }
     }
 
     public MovieData copyToNewObject(MovieData movieDataParam) {
@@ -99,17 +117,19 @@ public class FirestoreService {
         }
 
         movieData.setGuessedName(guessedName);
-        String imageName = movieName.toLowerCase().replace(" ", "_") + ".jpg";
+        imageName = movieName.toLowerCase().replace(" ", "_") + ".jpg";
 
         final ArrayList<Integer> clueHidden = new ArrayList<>();
 
         for (MappingMap entry : mappingMap) {
             clueHidden.add(Integer.parseInt(entry.getValue()));
         }
+        RequestOptions requestOptions = RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.ALL);
 
         GlideApp.with(context.getApplicationContext())
                 .asBitmap()
-                .load(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + File.separator + "SilmaPeru" + File.separator + imageName)
+                .apply(requestOptions)
+                .load(cachePath + File.separator + "SilmaPeru" + File.separator + imageName)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(ImageUtils.getRoundedImageTarget(context, movieImage, (float) 25.00));
 
@@ -171,7 +191,7 @@ public class FirestoreService {
                 tempAnsButton++;
                 buttonGroup.addView(button);
 
-                if (tempAnsButton == 8 && movieName.length() > ((i + 1) + 1) && checkNotWhiteSpace(movieName, (i + 1) + 1) && checkNotWhiteSpace(movieName, i + 1)) {
+                if (tempAnsButton == (width-1) && movieName.length() > ((i + 1) + 1) && checkNotWhiteSpace(movieName, (i + 1) + 1) && checkNotWhiteSpace(movieName, i + 1)) {
                     buttonGroup.addView(dashText);
                 }
 
@@ -181,7 +201,7 @@ public class FirestoreService {
             }
 
             Log.i("TAG", "The index is" + button.getText());
-            if (movieName.charAt(i) == ' ' || i == (movieName.length() - 1) || buttonGroup.getChildCount() == 9) {
+            if (movieName.charAt(i) == ' ' || i == (movieName.length() - 1) || buttonGroup.getChildCount() == width) {
                 tempAnsButton = 0;
                 flexboxLayout.addView(buttonGroup);
                 buttonGroup = new LinearLayout(context);
@@ -352,6 +372,32 @@ public class FirestoreService {
 
                 winMessage.setTextColor(Constants.getRandomColor());
                 successSound.start();
+
+                Bitmap myBitmap = BitmapFactory.decodeFile(cachePath + File.separator + "SilmaPeru" + File.separator + imageName);
+
+                myBitmap = ImageUtils.applyOverlay(context, myBitmap, R.drawable.done_bit);
+
+                File directory = new File(cachePath, "SilmaPeru" + File.separator + "done");
+                File file = new File(directory, imageName);
+                boolean createDir = true;
+                if (!directory.exists()) {
+                    createDir = directory.mkdirs();
+                }
+                if (!file.exists() && createDir) {
+                    Log.d("path", file.toString());
+                    FileOutputStream fos = null;
+                    try {
+                        fos = new FileOutputStream(file);
+                        myBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                        fos.flush();
+                        fos.close();
+                    } catch (java.io.IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                ((MainActivity) context).finish();
+                context.startActivity(((MainActivity) context).getIntent());
 
             } else if (pureGuessedName.length() == pureMovieName.length()) {
                 Toast.makeText(context, "Wrong Answer!", Toast.LENGTH_LONG).show();
