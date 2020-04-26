@@ -17,7 +17,7 @@ public class LaunchAppActivity extends AppCompatActivity {
     private ImageView helpImageView;
     private ImageView byeImageView;
     private Intent intent;
-
+    private Intent aboutIntent;
     @Override
     public void onBackPressed() {
         finish();
@@ -28,16 +28,24 @@ public class LaunchAppActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.launch_app);
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
         playImageView = findViewById(R.id.play);
         helpImageView = findViewById(R.id.help);
         byeImageView = findViewById(R.id.bye);
 
         intent = new Intent(getApplicationContext(), StartActivity.class);
+        aboutIntent = new Intent(getApplicationContext(), AboutActivity.class);
         playImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(intent);
+                finish();
+            }
+        });
+
+        helpImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(aboutIntent);
                 finish();
             }
         });

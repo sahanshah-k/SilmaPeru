@@ -10,9 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 
 import com.infinity.silmaperu.R;
+import com.infinity.silmaperu.domain.LevelMetadata;
 import com.infinity.silmaperu.domain.ListModel;
 import com.infinity.silmaperu.domain.MovieData;
-import com.infinity.silmaperu.services.StartService;
 import com.infinity.silmaperu.utilities.CustomAdapter;
 import com.infinity.silmaperu.utilities.SoundUtil;
 
@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
-
-import static com.infinity.silmaperu.config.Constants.TOTAL_LEVELS;
 
 public class StartActivity extends AppCompatActivity {
 
@@ -34,6 +32,7 @@ public class StartActivity extends AppCompatActivity {
     AppCompatImageView backButton;
     private int doneMonitor;
     private int levelUnlockCounter;
+    private int totalLevels;
 
     @Override
     public void onBackPressed() {
@@ -49,7 +48,11 @@ public class StartActivity extends AppCompatActivity {
 
         realm = Realm.getDefaultInstance();
 
-        StartService startService = new StartService(StartActivity.this);
+        LevelMetadata levelMetadata = realm.where(LevelMetadata.class).findFirst();
+
+        if (null != levelMetadata) {
+            totalLevels = levelMetadata.getCount();
+        }
 
         listView = (ListView) findViewById(R.id.level_list);
 
@@ -69,7 +72,7 @@ public class StartActivity extends AppCompatActivity {
 
         System.out.println("Started");
 
-        for (int i = 0; i < TOTAL_LEVELS; i++) {
+        for (int i = 0; i < totalLevels; i++) {
             List<MovieData> movieDataList = realm.where(MovieData.class).equalTo("levelId", "level-" + (i + 1)).findAll();
             int tempTotal = 0;
             int tempDone = 0;

@@ -24,6 +24,7 @@ import com.google.firebase.storage.StorageReference;
 import com.infinity.silmaperu.R;
 import com.infinity.silmaperu.activities.LaunchAppActivity;
 import com.infinity.silmaperu.activities.LoadingActivity;
+import com.infinity.silmaperu.domain.LevelMetadata;
 import com.infinity.silmaperu.domain.MovieData;
 import com.infinity.silmaperu.domain.UpdateMetadata;
 
@@ -35,7 +36,6 @@ import java.util.Map;
 import io.realm.Realm;
 
 import static com.firebase.ui.auth.ui.phone.SubmitConfirmationCodeFragment.TAG;
-import static com.infinity.silmaperu.config.Constants.TOTAL_LEVELS;
 
 public class SyncService {
 
@@ -54,6 +54,7 @@ public class SyncService {
     private String uniqueKey;
     String cachePath;
     private TextView loadingMessage;
+    private int totalLevels;
 
     public SyncService(Context context) {
         this.context = context;
@@ -72,6 +73,29 @@ public class SyncService {
         cachePath = context.getExternalCacheDir().getPath();
     }
 
+
+    public void processEverything() {
+        final DocumentReference docRef = db.collection("user1").document("levelMetadata");
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        totalLevels = document.getLong("count").intValue();
+                        realm.executeTransaction(new Realm.Transaction() {
+                            @Override
+                            public void execute(Realm realm) {
+                                realm.copyToRealmOrUpdate(new LevelMetadata("levelCount", totalLevels));
+                                checkAndSync();
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    }
+
     public void checkAndSync() {
         loadingMessage.setText("Regular Update Checks.");
         final DocumentReference docRef = db.collection("user1").document("updateMetadata");
@@ -84,9 +108,9 @@ public class SyncService {
                         uniqueKey = (String) document.getData().get("key");
                         final UpdateMetadata updateMetadataOffline = realm.where(UpdateMetadata.class).findFirst();
                         if (null == updateMetadataOffline || !updateMetadataOffline.getKey().equals(uniqueKey)) {
-                            loadingMessage.setText("This occurs only rarely! Keep calm.");
+                            loadingMessage.setText("This occurs very rarely! Keep calm.");
                             getCountAndThenSync();
-                       } else {
+                        } else {
                             startNextActivity();
                         }
                     } else {
@@ -106,7 +130,7 @@ public class SyncService {
     }
 
     public void getCountAndThenSync() {
-        for (int i = 1; i <= TOTAL_LEVELS; i++) {
+        for (int i = 1; i <= totalLevels; i++) {
 
             final String level = "level-" + i;
             final DocumentReference docRef = db.collection("user1").document(level);
@@ -121,9 +145,9 @@ public class SyncService {
                         if (document.exists()) {
                             Map<String, Object> hashMap = document.getData();
                             downloadCount += hashMap != null ? hashMap.size() : 0;
-                            if (finalI == TOTAL_LEVELS) {
+                            if (finalI == totalLevels) {
                                 loadingPercentage.setVisibility(View.VISIBLE);
-                                downloadCount += TOTAL_LEVELS;
+                                downloadCount += totalLevels;
                                 syncAllData();
                             }
                         } else {
@@ -142,7 +166,7 @@ public class SyncService {
 
     public void syncAllData() {
 
-        for (int i = 1; i <= TOTAL_LEVELS; i++) {
+        for (int i = 1; i <= totalLevels; i++) {
 
             final String level = "level-" + i;
 

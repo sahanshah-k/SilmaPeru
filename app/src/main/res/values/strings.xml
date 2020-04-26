@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Silma Peru</string>
+    <string name="about_content">This is strictly a non-commercial Application. Some of the data in this application are fetched from other sources like Whatsapp, Facebook, Instagram.
+    \n\nSilma Peru is purely made for fun. All of the data are being fetched from our servers for the first time. Then for each time it just checks for the update.</string>
+    <string name="about_footer">Made with love &lt;3</string>
 </resources>
