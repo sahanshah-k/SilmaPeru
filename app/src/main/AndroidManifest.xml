@@ -19,23 +19,28 @@
         tools:ignore="GoogleAppIndexingWarning"
         android:requestLegacyExternalStorage="true">
         <activity android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask">
         </activity>
 
         <activity android:name=".activities.StartActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme">
         </activity>
 
         <activity android:name=".activities.LevelActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask">
         </activity>
 
         <activity android:name=".activities.LaunchAppActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask">
         </activity>
 
         <activity android:name=".activities.PermissionActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -44,10 +49,12 @@
         </activity>
 
         <activity android:name=".activities.LoadingActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask">
         </activity>
 
         <activity android:name=".activities.AboutActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask">
         </activity>
     </application>

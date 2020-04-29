@@ -144,7 +144,7 @@ public class FirestoreService {
 
         buttonGroup.setGravity(Gravity.CENTER);
         buttonGroup.setLayoutParams(buttonGroupLayoutParams);
-        linearLayoutClue.setMargins(0, 0, 0, 0);
+        linearLayoutClue.setMargins(5, 5, 5, 5);
         for (int i = 0; i < movieName.length(); i++) {
             FlexboxLayout flexboxLayout = rootView.findViewById(R.id.answer_layout);
             final Button button = new Button(context);
@@ -153,7 +153,9 @@ public class FirestoreService {
             button.setPadding(0, 0, 0, 0);
             button.setTypeface(Typeface.createFromAsset(context.getAssets(), "seguibl.ttf"));
             button.setGravity(Gravity.CENTER);
-            button.setBackgroundResource(R.drawable.answer_button);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                button.setBackground(context.getDrawable(R.drawable.button_answer));
+            }
             button.setTextColor(context.getResources().getColor(R.color.colorWhite));
             button.setId(i + 1000);
 
@@ -227,6 +229,9 @@ public class FirestoreService {
             button.setPadding(0, 0, 0, 0);
             button.setTypeface(Typeface.createFromAsset(context.getAssets(), "seguibl.ttf"));
             button.setGravity(Gravity.CENTER);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                button.setBackground(context.getDrawable(R.drawable.button_clue));
+            }
             flexboxLayoutClue = rootView.findViewById(R.id.name_scrambled_layout);
 
             button.setText(charClue);
@@ -280,8 +285,10 @@ public class FirestoreService {
 
         for (int i = 0; i < movieName.length(); i++) {
             Button answerButton = rootView.findViewById(1000 + i);
-            if (guessedName.charAt(i) != '*') {
-                answerButton.setText(String.valueOf(guessedName.charAt(i)));
+            if (null != answerButton) {
+                if (guessedName.charAt(i) != '*') {
+                    answerButton.setText(String.valueOf(guessedName.charAt(i)));
+                }
             }
         }
     }
@@ -332,8 +339,10 @@ public class FirestoreService {
             }
             for (int i = 0; i < movieName.length(); i++) {
                 Button answerButton = rootView.findViewById(1000 + i);
-                if (guessedName.charAt(i) != '*') {
-                    answerButton.setText(String.valueOf(guessedName.charAt(i)));
+                if (null != answerButton) {
+                    if (guessedName.charAt(i) != '*') {
+                        answerButton.setText(String.valueOf(guessedName.charAt(i)));
+                    }
                 }
             }
 
