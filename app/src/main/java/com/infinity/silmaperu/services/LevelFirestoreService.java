@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -34,12 +35,20 @@ public class LevelFirestoreService {
     Realm realm;
     private View rootView;
     private Context context;
+    private int width;
     String cachePath;
+    private int boxSide;
+    private int lpMargins;
 
     public LevelFirestoreService(Context context) {
         this.context = context;
         realm = Realm.getDefaultInstance();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        width = displayMetrics.widthPixels;
         cachePath = context.getExternalCacheDir().getPath();
+        boxSide = (int)Math.round(width / 4.5);
+        lpMargins = (int)Math.round(width / 72);
         rootView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
     }
 
@@ -53,9 +62,9 @@ public class LevelFirestoreService {
             String imageName = movieName.toLowerCase().replace(" ", "_") + ".jpg";
             final String status = movieData.getStatus();
             final ImageView movieTile = new ImageView(context);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(240, 240);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(boxSide, boxSide);
 
-            lp.setMargins(15, 15, 15, 15);
+            lp.setMargins(lpMargins, lpMargins, lpMargins, lpMargins);
             movieTile.setLayoutParams(lp);
 
             movieTile.setOnClickListener(new View.OnClickListener() {

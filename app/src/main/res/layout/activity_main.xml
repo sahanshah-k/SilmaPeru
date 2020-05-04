@@ -5,8 +5,8 @@
     android:id="@+id/mainactivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@drawable/background_final"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
     <androidx.appcompat.widget.Toolbar
@@ -25,7 +25,6 @@
             android:src="@drawable/ic_arrow_back_black_24dp" />
 
 
-
     </androidx.appcompat.widget.Toolbar>
 
     <com.google.android.flexbox.FlexboxLayout
@@ -33,7 +32,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:gravity="center_horizontal"
         android:orientation="horizontal"
@@ -74,58 +73,68 @@
         android:id="@+id/movieImage"
         android:layout_width="320dp"
         android:layout_height="320dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:src="@drawable/ic_launcher_background"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar_display_users" />
 
-    <RelativeLayout
-        android:id="@+id/wikiLayout"
-        android:visibility="gone"
+    <ScrollView
+        android:id="@+id/scrollViewWiki"
         android:layout_width="match_parent"
+
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/answer_layout"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintTop_toBottomOf="@+id/answer_layout">
 
-        <ImageView
-            android:layout_width="130px"
-            android:layout_height="130px"
-            android:layout_marginTop="5dp"
-            android:id="@+id/wiki_image_image_view"
-            android:src="@drawable/wiki_image"/>
-
-        <TextView
-            android:id="@+id/wikiContent"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:id="@+id/wikiLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorLightBlack"
-            android:textSize="17dp"
-            />
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintVertical_bias="0.0">
+
+            <ImageView
+                android:id="@+id/wiki_image_image_view"
+                android:layout_width="130px"
+                android:layout_height="130px"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/wiki_image" />
+
+            <TextView
+                android:id="@+id/wikiContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorLightBlack"
+                android:textSize="17dp" />
 
 
-    </RelativeLayout>
+        </RelativeLayout>
+    </ScrollView>
 
 
     <RelativeLayout
         android:id="@+id/winMessageLayout"
         android:layout_width="match_parent"
-android:visibility="gone"
         android:layout_height="100dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/win_back"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/wikiLayout"
+        app:layout_constraintTop_toBottomOf="@+id/scrollViewWiki"
         app:layout_constraintVertical_bias="1.0">
 
         <TextView
@@ -136,7 +145,7 @@ android:visibility="gone"
             android:paddingTop="20dp"
 
             android:text="WELL DONE!"
-            android:textSize="45dp"
+            android:textSize="5dp"
             android:textStyle="bold" />
 
     </RelativeLayout>

@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,7 +60,20 @@ public class FirestoreService {
     private TextView dashText;
     private String imageName;
     private int width;
+    private int height;
     String cachePath;
+    private int layoutClueSide;
+    private int layoutAnswerSide;
+    private int answerSide;
+    private int layoutMargin;
+    private int buttonGroupMargin;
+    private int spannableMargin;
+    private int spannableLength;
+    private int fontSize;
+    private int scrollViewHeight;
+    private int winMessageFontSize;
+    private int winMessageHeight;
+    private int wikiImageSize;
 
     public FirestoreService(Context context) {
         this.context = context;
@@ -72,8 +86,25 @@ public class FirestoreService {
         ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
         width = displayMetrics.widthPixels;
+        height = displayMetrics.heightPixels;//2260
+        answerSide = (int)Math.round(height / 2.825);//800
+        layoutAnswerSide = (int)Math.round(height / 22.6);//100
+        buttonGroupMargin = (int)Math.round(height / 113);//20
+        fontSize = (int)Math.round(height / 86.92);//26
+        layoutMargin = (int)Math.round(height / 452);//5
+        layoutClueSide = (int)Math.round(height / 19.7);//115
+        spannableLength = (int)Math.round(height / 4.86);//465
+        spannableMargin = (int)Math.round(height / 14.125);//160
+        scrollViewHeight = (int)Math.round(height / 3.4769);//650
+        winMessageFontSize = (int)Math.round(height / 53.80);//42
+        winMessageHeight = (int)Math.round(height / 9.04);//250
+        wikiImageSize = (int)Math.round(height / 15.067);//150
+
+
+        int buttonCountMinus = width - (buttonGroupMargin * 2) - 16;
+        int buttonWidth = layoutAnswerSide + (layoutMargin * 2);
         if (width > 0) {
-            width = width / 120;
+            width = buttonCountMinus/buttonWidth;//9
         } else {
             width = 9;
         }
@@ -95,6 +126,8 @@ public class FirestoreService {
     public void getCurrentMovieData(final String level, final String movieArg) {
 
         movieImage = rootView.findViewById(R.id.movieImage);
+        movieImage.getLayoutParams().height = answerSide;
+        movieImage.getLayoutParams().width = answerSide;
 
         MovieData movieDataTemp = realm.where(MovieData.class).equalTo("levelId", level).and().equalTo("movieId", movieArg).findFirst();
 
@@ -133,23 +166,23 @@ public class FirestoreService {
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(ImageUtils.getRoundedImageTarget(context, movieImage, (float) 25.00));
 
-        LinearLayout.LayoutParams linearLayoutAnswer = new LinearLayout.LayoutParams(100, 100);
-        linearLayoutAnswer.setMargins(5, 5, 5, 5);
+        LinearLayout.LayoutParams linearLayoutAnswer = new LinearLayout.LayoutParams(layoutAnswerSide, layoutAnswerSide);
+        linearLayoutAnswer.setMargins(layoutMargin, layoutMargin, layoutMargin, layoutMargin);
 
-        LinearLayout.LayoutParams linearLayoutClue = new LinearLayout.LayoutParams(115, 115);
+        LinearLayout.LayoutParams linearLayoutClue = new LinearLayout.LayoutParams(layoutClueSide, layoutClueSide);
 
         LinearLayout buttonGroup = new LinearLayout(context);
         LinearLayout.LayoutParams buttonGroupLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        buttonGroupLayoutParams.setMargins(20, 0, 20, 0);
+        buttonGroupLayoutParams.setMargins(buttonGroupMargin, 0, buttonGroupMargin, 0);
 
         buttonGroup.setGravity(Gravity.CENTER);
         buttonGroup.setLayoutParams(buttonGroupLayoutParams);
-        linearLayoutClue.setMargins(5, 5, 5, 5);
+        linearLayoutClue.setMargins(layoutMargin, layoutMargin, layoutMargin, layoutMargin);
         for (int i = 0; i < movieName.length(); i++) {
             FlexboxLayout flexboxLayout = rootView.findViewById(R.id.answer_layout);
             final Button button = new Button(context);
             button.setLayoutParams(linearLayoutAnswer);
-            button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 26);
+            button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
             button.setPadding(0, 0, 0, 0);
             button.setTypeface(Typeface.createFromAsset(context.getAssets(), "seguibl.ttf"));
             button.setGravity(Gravity.CENTER);
@@ -225,7 +258,7 @@ public class FirestoreService {
             final Button button = new Button(context);
             button.setId(2000 + i);
             button.setLayoutParams(linearLayoutClue);
-            button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 26);
+            button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
             button.setPadding(0, 0, 0, 0);
             button.setTypeface(Typeface.createFromAsset(context.getAssets(), "seguibl.ttf"));
             button.setGravity(Gravity.CENTER);
@@ -255,15 +288,20 @@ public class FirestoreService {
 
             SpannableString ss;
 
-            if (wikiContentString.length() > 465) {
-                ss = new SpannableString(wikiContentString.substring(0, 464) + "...");
+            if (wikiContentString.length() > spannableLength) {
+                ss = new SpannableString(wikiContentString.substring(0, spannableLength - 1) + "...");
 
             } else {
                 ss = new SpannableString(wikiContentString);
             }
-            ss.setSpan(new MyLeadingMarginSpan2(3, 160), 0, ss.length(), 0);
+            ss.setSpan(new MyLeadingMarginSpan2(3, spannableMargin), 0, ss.length(), 0);
 
             TextView wikiContentTextView = rootView.findViewById(R.id.wikiContent);
+
+            ScrollView scrollView = rootView.findViewById(R.id.scrollViewWiki);
+            scrollView.getLayoutParams().height = scrollViewHeight;
+            scrollView.setVisibility(View.VISIBLE);
+
             RelativeLayout wikiRelativeLayout = rootView.findViewById(R.id.wikiLayout);
             wikiRelativeLayout.setVisibility(View.VISIBLE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -271,12 +309,18 @@ public class FirestoreService {
             }
 
             wikiContentTextView.setText(ss);
+            ImageView wikiGlobe = rootView.findViewById(R.id.wiki_image_image_view);
+            wikiGlobe.getLayoutParams().height = wikiImageSize;
+            wikiGlobe.getLayoutParams().width = wikiImageSize;
+
 
             RelativeLayout winMessageLayout = rootView.findViewById(R.id.winMessageLayout);
+            winMessageLayout.getLayoutParams().height = winMessageHeight;
             winMessageLayout.setVisibility(View.VISIBLE);
 
             TextView winMessage = rootView.findViewById(R.id.winMessage);
             winMessage.setTypeface(Typeface.createFromAsset(context.getAssets(), "win_font.ttf"));
+            winMessage.setTextSize(TypedValue.COMPLEX_UNIT_DIP, winMessageFontSize);
             winMessage.setText(Constants.getRandomWinMessage());
             winMessage.setTextColor(context.getResources().getColor(Constants.getRandomColor()));
 
@@ -355,28 +399,41 @@ public class FirestoreService {
                 flexboxLayoutClue.setVisibility(View.INVISIBLE);
                 SpannableString ss;
 
-                if (wikiContentString.length() > 465) {
-                    ss = new SpannableString(wikiContentString.substring(0, 464) + "...");
+                if (wikiContentString.length() > spannableLength) {
+                    ss = new SpannableString(wikiContentString.substring(0, spannableLength-1) + "...");
 
                 } else {
                     ss = new SpannableString(wikiContentString);
                 }
-                ss.setSpan(new MyLeadingMarginSpan2(3, 160), 0, ss.length(), 0);
+                ss.setSpan(new MyLeadingMarginSpan2(3, spannableMargin), 0, ss.length(), 0);
 
                 TextView wikiContentTextView = rootView.findViewById(R.id.wikiContent);
                 RelativeLayout wikiRelativeLayout = rootView.findViewById(R.id.wikiLayout);
+
+                wikiRelativeLayout.getLayoutParams().height = 100;
+
+                ScrollView scrollView = rootView.findViewById(R.id.scrollViewWiki);
+                scrollView.getLayoutParams().height = scrollViewHeight;
+                scrollView.setVisibility(View.VISIBLE);
+
                 wikiRelativeLayout.setVisibility(View.VISIBLE);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     wikiContentTextView.setJustificationMode(Layout.JUSTIFICATION_MODE_INTER_WORD);
                 }
 
                 wikiContentTextView.setText(ss);
+                ImageView wikiGlobe = rootView.findViewById(R.id.wiki_image_image_view);
+                wikiGlobe.getLayoutParams().height = wikiImageSize;
+                wikiGlobe.getLayoutParams().width = wikiImageSize;
 
                 RelativeLayout winMessageLayout = rootView.findViewById(R.id.winMessageLayout);
+                winMessageLayout.getLayoutParams().height = winMessageHeight;
+
                 winMessageLayout.setVisibility(View.VISIBLE);
 
                 TextView winMessage = rootView.findViewById(R.id.winMessage);
                 winMessage.setText(Constants.getRandomWinMessage());
+                winMessage.setTextSize(TypedValue.COMPLEX_UNIT_DIP, winMessageFontSize);
                 winMessage.setTypeface(Typeface.createFromAsset(context.getAssets(), "win_font.ttf"));
 
                 winMessage.setTextColor(Constants.getRandomColor());
